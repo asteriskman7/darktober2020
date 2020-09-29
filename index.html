@@ -116,8 +116,6 @@ TODO:
         constructor() {
           this.canvas = app.canvas;
           this.ctx = this.canvas.getContext('2d');
-          this.width = this.canvas.width;
-          this.height = this.canvas.height;
         }
 
         load() {
@@ -129,10 +127,10 @@ TODO:
           this.t += 0.033;
           this.update();
         }
-        draw(ctx) { }
+        draw(ctx, width, height, t) { }
         _draw() { 
           this.ctx.save();
-          this.draw(this.ctx);
+          this.draw(this.ctx, this.canvas.width, this.canvas.height, this.t);
           this.ctx.restore();
         }
       }
