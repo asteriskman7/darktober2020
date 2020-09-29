@@ -1,0 +1,301 @@
+<html>
+  <!--
+TODO:
+  make calendar start week blanks automatic
+  -->
+  <head>
+    <title>Inktober 2020</title>
+    <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: black;
+        --fg: white;
+        --fgd: hsl(0, 0%, 30%);
+        --hl: orange;
+        --hld: hsl(39, 100%, 15%);
+        --hl2: #47d147;
+        --font: 'Grandstander', sans-serif;
+      }
+      body {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-gap: 1em;
+        justify-items: center;
+        background: var(--bg);
+        color: var(--fg);
+        text-align: center;
+        font-family: var(--font);
+      }
+      canvas {
+        background: white;
+      }
+      a {
+        color: var(--hl);
+      }
+      a:visited {
+        color: var(--hl);
+      }
+      button {
+        font-family: var(--font);
+        font-size: large;
+        background: var(--hl);
+        color: var(--hld);
+        border: 1px solid var(--hld);
+        padding: 0.25em;
+        width: 4em;
+      }
+      button:focus {
+        outline: none;
+      }
+      button:hover {
+        filter: brightness(1.2);
+      }
+      button:active {
+        background: var(--hl2);
+      }
+      #calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        width: 930px;
+      }
+      #month {
+        grid-column: 1 / 8;
+        font-size: 1.5em;
+      }
+      .dayDay {
+        text-align: left;
+        padding: 0.5em;
+      }
+      .promptDay {
+        text-align: left;
+        border: 1px solid var(--hl);
+        padding: 0.5em;
+        background: var(--hld);
+        cursor: pointer;
+      }
+      .promptDay:hover {
+        filter: brightness(1.4);
+      }
+      .promptDayIncomplete {
+        color: var(--fgd);
+        cursor: not-allowed;
+      }
+      .promptDaySelected {
+        outline: 2px solid var(--hl2);
+      }
+      #sketchTitle {
+        font-size: xx-large;
+      }
+      #sketchDesc {
+        margin: 0.5em;
+      }
+      #wrapper {
+        margin-top: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id='header'>
+      <div id='calendar'>
+      </div>
+    </div>
+    <div id='content'>
+      <div id='sketchTitle'>-</div> 
+      <div id='sketchDesc'>-</div>
+      <div id='controls'>
+        <button id='buttonPause'>Pause</button>
+        <button id='buttonReset'>Reset</button>
+      </div>
+      <div id='wrapper'>
+        <canvas id='cmain' width='512' height='512'></canvas>
+      </div>
+    </div>
+    <script>
+      const sketches = [];
+      class Sketch {
+        constructor() {
+          this.canvas = app.canvas;
+          this.ctx = this.canvas.getContext('2d');
+          this.width = this.canvas.width;
+          this.height = this.canvas.height;
+        }
+
+        load() {
+          this.t = 0;
+        }
+        unload() { }
+        update() { }
+        _update() { 
+          this.t += 0.033;
+          this.update();
+        }
+        draw(ctx) { }
+        _draw() { 
+          this.ctx.save();
+          this.draw(this.ctx);
+          this.ctx.restore();
+        }
+      }
+    </script>
+
+
+    <script>
+     
+      class App {
+        constructor() {
+          this.prompts = ('fish,wisp,bulky,radio,blade,rodent,fancy,teeth,throw,hope,' +
+            'disgusting,slippery,dune,armor,outpost,rocket,storm,trap,dizzy,coral,' +
+            'sleep, chef,rip,dig,buddy,hide,music,float,shoes,ominous,crawl').split`,`;
+
+          this.sketches = [];
+          this.paused = false;
+
+          this.canvas = document.getElementById('cmain');
+          document.getElementById('buttonPause').onclick = () => this.pause();
+          document.getElementById('buttonReset').onclick = () => this.reset();
+
+        }
+
+        initCalendar() {
+          const root = document.getElementById('calendar');
+          const divMonth = document.createElement('div');
+          divMonth.id = 'month';
+          divMonth.innerHTML = '<a href="https://inktober.com">Inktober</a> 2020';
+          root.appendChild(divMonth);
+
+          const days = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'.split`,`;
+          days.forEach( v => {
+            const dd = document.createElement('div');
+            dd.innerText = v;
+            dd.classList.add('dayDay');
+            root.appendChild(dd);
+          });
+
+          const emptyDays = 2;
+          for (let i = 0; i < emptyDays; i++) {
+            const ed = document.createElement('div');
+            root.appendChild(ed);
+          }
+          this.prompts.forEach( (v, i) => {
+            const pd = document.createElement('div');
+            pd.classList.add('promptDay');
+            const dateSpan = document.createElement('span');
+            dateSpan.innerText = `${i+1}: `;
+            pd.appendChild(dateSpan);
+            const promptSpan = document.createElement('span');
+            promptSpan.id = `prompt${i+1}`;
+            promptSpan.innerText = `${v[0].toUpperCase() + v.substr(1)}`;
+            if (this.sketches[i+1] === undefined) {
+              promptSpan.classList.add('promptDayIncomplete');
+              pd.classList.add('promptDayIncomplete');
+            }
+            pd.onclick = () => this.loadDay(i+1);
+            pd.appendChild(promptSpan);
+            root.appendChild(pd);
+          });
+        }
+
+        loadDay(n) {
+          console.log('load', n);
+          if (this.sketches[n] === undefined) { return; }
+          if (this.currentSketch) {
+            this.currentSketch.unload();
+          }
+
+          this.currentSketch = this.sketches[n];
+          this.currentSketch.load();
+          const oldSelected = document.getElementsByClassName('promptDaySelected');
+          if (oldSelected.length > 0) {
+            oldSelected.item(0).classList.remove('promptDaySelected');
+          }
+
+          const selected = document.getElementById(`prompt${n}`);
+
+          if (selected !== null) {
+            selected.classList.add('promptDaySelected');
+            document.getElementById('sketchTitle').innerText = this.prompts[n-1];
+          }
+
+          document.getElementById('sketchDesc').innerText = this.currentSketch.desc;
+          this.loadedDay = n;
+        }
+
+        update() {
+          if (this.currentSketch) {
+            this.currentSketch._update();
+          }
+        }
+
+        draw() {
+          if (this.currentSketch) {
+            this.currentSketch._draw();
+          }
+        }
+
+        tick() {
+          if (!this.paused) {
+            this.update();
+            this.draw();
+          }
+        }
+
+        pause() {
+          this.paused = !this.paused;
+          if (this.paused) {
+            document.getElementById('buttonPause').innerText = 'Run';
+          } else {
+            document.getElementById('buttonPause').innerText = 'Pause';
+          }
+        }
+
+        reset() {
+          if (this.loadedDay !== undefined) {
+            this.loadDay(this.loadedDay);
+          }
+        }
+      }
+
+      const app = new App();
+
+    </script>
+
+    <script src='./sketch0.js'></script>
+    <script src='./sketch1.js'></script>
+    <script src='./sketch2.js'></script>
+    <script src='./sketch3.js'></script>
+    <script src='./sketch4.js'></script>
+    <script src='./sketch5.js'></script>
+    <script src='./sketch6.js'></script>
+    <script src='./sketch7.js'></script>
+    <script src='./sketch8.js'></script>
+    <script src='./sketch9.js'></script>
+    <script src='./sketch10.js'></script>
+    <script src='./sketch11.js'></script>
+    <script src='./sketch12.js'></script>
+    <script src='./sketch13.js'></script>
+    <script src='./sketch14.js'></script>
+    <script src='./sketch15.js'></script>
+    <script src='./sketch16.js'></script>
+    <script src='./sketch17.js'></script>
+    <script src='./sketch18.js'></script>
+    <script src='./sketch19.js'></script>
+    <script src='./sketch20.js'></script>
+    <script src='./sketch21.js'></script>
+    <script src='./sketch22.js'></script>
+    <script src='./sketch23.js'></script>
+    <script src='./sketch24.js'></script>
+    <script src='./sketch25.js'></script>
+    <script src='./sketch26.js'></script>
+    <script src='./sketch27.js'></script>
+    <script src='./sketch28.js'></script>
+    <script src='./sketch29.js'></script>
+    <script src='./sketch30.js'></script>
+    <script src='./sketch31.js'></script>
+
+    <script>
+      app.initCalendar();
+      app.loadDay(0);
+      setInterval(() => app.tick(), 33);
+    </script>
+  </body>
+</html>
