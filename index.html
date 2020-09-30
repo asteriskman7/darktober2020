@@ -4,7 +4,7 @@ TODO:
   make calendar start week blanks automatic
   -->
   <head>
-    <title>Inktober 2020</title>
+    <title>Darktober 2020</title>
     <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 112 112%22><text y=%22.9em%22 font-size=%2290%22>&#x1f383;</text></svg>">
     <style>
@@ -143,9 +143,9 @@ TODO:
      
       class App {
         constructor() {
-          this.prompts = ('fish,wisp,bulky,radio,blade,rodent,fancy,teeth,throw,hope,' +
-            'disgusting,slippery,dune,armor,outpost,rocket,storm,trap,dizzy,coral,' +
-            'sleep, chef,rip,dig,buddy,hide,music,float,shoes,ominous,crawl').split`,`;
+          this.prompts = ('dark,creature,fatigue,panic,robotic,magic,haunted,wapon,future,reptile,' +
+            'lightning,witch,chain,ritual,cold,fragile,element,howl,cloaked,skeleton,oriental,' +
+            'raven,hollow,demon,spider,historic,ghost,titan,scream,hero,undead').split`,`;
 
           this.sketches = [];
           this.paused = false;
@@ -160,7 +160,7 @@ TODO:
           const root = document.getElementById('calendar');
           const divMonth = document.createElement('div');
           divMonth.id = 'month';
-          divMonth.innerHTML = '<a href="https://inktober.com">Inktober</a> 2020';
+          divMonth.innerHTML = '<a href="https://www.reddit.com/r/darktober">Darktober</a> 2020';
           root.appendChild(divMonth);
 
           const days = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'.split`,`;
