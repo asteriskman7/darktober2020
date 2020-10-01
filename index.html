@@ -87,6 +87,9 @@ TODO:
       #sketchTitle {
         font-size: xx-large;
       }
+      .codeLink {
+        font-size: 50%;
+      }
       #sketchDesc {
         margin: 0.5em;
       }
@@ -226,7 +229,9 @@ TODO:
 
           if (selected !== null) {
             selected.classList.add('promptDaySelected');
-            document.getElementById('sketchTitle').innerText = this.prompts[n-1];
+            //document.getElementById('sketchTitle').innerText = this.prompts[n-1];
+            document.getElementById('sketchTitle').innerHTML = `${this.prompts[n-1]} <a href='sketch${n}.js' target='_blank' class='codeLink'>code</a>`;
+            
           }
 
           document.getElementById('sketchDesc').innerText = this.currentSketch.desc;
