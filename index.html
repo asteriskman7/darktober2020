@@ -197,6 +197,17 @@ TODO:
 
         loadDay(n) {
           console.log('load', n);
+
+          if (n === -1) {
+            //get from query string
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const querySketch = urlParams.get('sketch');
+            if (querySketch !== null) {
+              n = querySketch;
+            }
+          }
+
           if (this.sketches[n] === undefined) { return; }
           if (this.currentSketch) {
             this.currentSketch.unload();
@@ -294,7 +305,7 @@ TODO:
 
     <script>
       app.initCalendar();
-      app.loadDay(0);
+      app.loadDay(-1);
       setInterval(() => app.tick(), 33);
     </script>
   </body>
