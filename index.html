@@ -203,7 +203,9 @@ TODO:
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const querySketch = urlParams.get('sketch');
-            if (querySketch !== null) {
+            if (querySketch === null) {
+              n = 0;
+            } else {
               n = querySketch;
             }
           }
