@@ -61,4 +61,5 @@ class Sketch2 extends Sketch {
 }
 
 app.sketches[2] = new Sketch2();
-app.sketches[2].desc = `-`;
+app.sketches[2].desc = `No matter the appearence of a creature, you can never
+be quite sure of it's intentions.`;
