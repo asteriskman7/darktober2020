@@ -239,6 +239,10 @@ TODO:
 
           document.getElementById('sketchDesc').innerText = this.currentSketch.desc;
           this.loadedDay = n;
+
+          if (n > 0) {
+            window.history.replaceState({}, '', `${location.pathname}?sketch=${n}`);
+          }
         }
 
         update() {
