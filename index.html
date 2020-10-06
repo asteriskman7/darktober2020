@@ -161,6 +161,8 @@ TODO:
           document.getElementById('buttonReset').onclick = () => this.reset();
           this.canvas.onmousemove = (e) => this.mouseMove(e);
 
+          this.sketchLoadsRemaining = 32; //31 sketches and the 0th sketch
+
         }
 
         initCalendar() {
@@ -183,6 +185,8 @@ TODO:
             const ed = document.createElement('div');
             root.appendChild(ed);
           }
+          this.calendarElements = [];
+          this.promptSpans = [];
           this.prompts.forEach( (v, i) => {
             const pd = document.createElement('div');
             pd.classList.add('promptDay');
@@ -191,11 +195,13 @@ TODO:
             pd.appendChild(dateSpan);
             const promptSpan = document.createElement('span');
             promptSpan.id = `prompt${i+1}`;
-            promptSpan.innerText = `${v[0].toUpperCase() + v.substr(1)}`;
+            this.promptSpans[i+1] = promptSpan;
+            promptSpan.innerText = 'loading';
             if (this.sketches[i+1] === undefined) {
               promptSpan.classList.add('promptDayIncomplete');
               pd.classList.add('promptDayIncomplete');
             }
+            this.calendarElements[i+1] = [promptSpan, pd];
             pd.onclick = () => this.loadDay(i+1);
             pd.appendChild(promptSpan);
             root.appendChild(pd);
@@ -233,7 +239,6 @@ TODO:
 
           if (selected !== null) {
             selected.classList.add('promptDaySelected');
-            //document.getElementById('sketchTitle').innerText = this.prompts[n-1];
             document.getElementById('sketchTitle').innerHTML = `${this.prompts[n-1]} <a href='sketch${n}.js' target='_blank' class='codeLink'>code</a>`;
             
           }
@@ -287,49 +292,46 @@ TODO:
           this.mousePoint.u = this.mousePoint.x / this.canvas.width;
           this.mousePoint.v = this.mousePoint.y / this.canvas.height;
         }
+
+        loadSketch(n) {
+          const e = document.createElement('script');
+          e.src = `./sketch${n}.js`;
+          e.onload = () => {
+            console.log('load', n);
+            if (n !== 0) {
+              this.calendarElements[n].forEach( v => v.classList.remove('promptDayIncomplete'));
+              const promptText = this.prompts[n-1][0].toUpperCase() + this.prompts[n-1].substr(1);
+              this.promptSpans[n].innerText = promptText;
+            }
+            this.sketchLoadsRemaining--;
+            if (this.sketchLoadsRemaining === 0) {
+              this.loadDay(-1);
+              setInterval(() => app.tick(), 33);
+            }
+          }
+          e.onerror = () => {
+            console.log('error', n);
+            if (n !== 0) {
+              const promptText = this.prompts[n-1][0].toUpperCase() + this.prompts[n-1].substr(1);
+              this.promptSpans[n].innerText = promptText;
+            }
+            this.sketchLoadsRemaining--;
+            if (this.sketchLoadsRemaining === 0) {
+              this.loadDay(-1);
+              setInterval(() => app.tick(), 33);
+            }
+          }
+          document.body.appendChild(e);
+        }
       }
 
       const app = new App();
-
-    </script>
-
-    <script src='./sketch0.js'></script>
-    <script src='./sketch1.js'></script>
-    <script src='./sketch2.js'></script>
-    <script src='./sketch3.js'></script>
-    <script src='./sketch4.js'></script>
-    <script src='./sketch5.js'></script>
-    <script src='./sketch6.js'></script>
-    <script src='./sketch7.js'></script>
-    <script src='./sketch8.js'></script>
-    <script src='./sketch9.js'></script>
-    <script src='./sketch10.js'></script>
-    <script src='./sketch11.js'></script>
-    <script src='./sketch12.js'></script>
-    <script src='./sketch13.js'></script>
-    <script src='./sketch14.js'></script>
-    <script src='./sketch15.js'></script>
-    <script src='./sketch16.js'></script>
-    <script src='./sketch17.js'></script>
-    <script src='./sketch18.js'></script>
-    <script src='./sketch19.js'></script>
-    <script src='./sketch20.js'></script>
-    <script src='./sketch21.js'></script>
-    <script src='./sketch22.js'></script>
-    <script src='./sketch23.js'></script>
-    <script src='./sketch24.js'></script>
-    <script src='./sketch25.js'></script>
-    <script src='./sketch26.js'></script>
-    <script src='./sketch27.js'></script>
-    <script src='./sketch28.js'></script>
-    <script src='./sketch29.js'></script>
-    <script src='./sketch30.js'></script>
-    <script src='./sketch31.js'></script>
-
-    <script>
       app.initCalendar();
-      app.loadDay(-1);
-      setInterval(() => app.tick(), 33);
+
+      for (let i = 0; i <= 31; i++) {
+        app.loadSketch(i);
+      }
+
     </script>
   </body>
 </html>
